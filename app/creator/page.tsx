@@ -66,19 +66,39 @@ const HOOKS_DATA = [
 
 const VOICES = {
   agents: [
-    { id: 'milo', name: 'Milo', role: 'Creative Director', personality: 'Bold, visionary, aesthetic-focused' },
-    { id: 'remi', name: 'Remi', role: 'Content Producer', personality: 'Fast-paced, trend-savvy, engaging' },
-    { id: 'zara', name: 'Zara', role: 'Community Manager', personality: 'Warm, authentic, relatable' },
-    { id: 'ivy', name: 'Ivy', role: 'Data Analyst', personality: 'Smart, data-driven, insightful' },
-    { id: 'quinn', name: 'Quinn', role: 'Distribution', personality: 'Strategic, platform-expert, efficient' },
-    { id: 'lila', name: 'Lila', role: 'Rights Manager', personality: 'Protective, detail-oriented, empowering' }
+    { id: 'milo', name: 'Milo', role: 'Creative Director', personality: 'Bold, visionary, aesthetic-focused', editable: true },
+    { id: 'remi', name: 'Remi', role: 'Content Producer', personality: 'Fast-paced, trend-savvy, engaging', editable: true },
+    { id: 'zara', name: 'Zara', role: 'Community Manager', personality: 'Warm, authentic, relatable', editable: true },
+    { id: 'lila', name: 'Lila', role: 'Distribution Manager', personality: 'Strategic, platform-savvy, results-driven', editable: true },
+    { id: 'enzo', name: 'Enzo', role: 'Strategist', personality: 'Analytical, forward-thinking, data-informed', editable: true },
+    { id: 'amie', name: 'Amie', role: 'Relationship Manager', personality: 'Empathetic, collaborative, people-focused', editable: true }
   ],
   marketers: [
-    { id: 'gary-vee', name: 'Gary Vaynerchuk', style: 'ALL CAPS, aggressive, hustle culture' },
-    { id: 'seth-godin', name: 'Seth Godin', style: 'Minimal, thought-provoking, storytelling' },
-    { id: 'neil-patel', name: 'Neil Patel', style: 'Data-driven, stats-heavy, analytical' },
-    { id: 'alex-hormozi', name: 'Alex Hormozi', style: 'Value stacking, direct, ROI-focused' },
-    { id: 'frank-kern', name: 'Frank Kern', style: 'Conversational, story-driven, relatable' }
+    { id: 'gary-vee', name: 'Gary Vaynerchuk', style: 'ALL CAPS, aggressive, hustle culture, rapid-fire energy' },
+    { id: 'seth-godin', name: 'Seth Godin', style: 'Minimal, thought-provoking, storytelling, philosophical' },
+    { id: 'neil-patel', name: 'Neil Patel', style: 'Data-driven, stats-heavy, analytical, SEO-focused' },
+    { id: 'alex-hormozi', name: 'Alex Hormozi', style: 'Value stacking, direct, ROI-focused, no-BS approach' },
+    { id: 'frank-kern', name: 'Frank Kern', style: 'Conversational, story-driven, relatable, laid-back' },
+    { id: 'simon-sinek', name: 'Simon Sinek', style: 'Purpose-driven, inspirational, why-focused, visionary' },
+    { id: 'dan-kennedy', name: 'Dan Kennedy', style: 'Direct response, no-nonsense, contrarian, results-obsessed' },
+    { id: 'russell-brunson', name: 'Russell Brunson', style: 'Story-based, funnel-focused, enthusiastic, systematic' },
+    { id: 'ann-handley', name: 'Ann Handley', style: 'Empathetic, story-first, human-centered, accessible' },
+    { id: 'mark-ritson', name: 'Mark Ritson', style: 'Academic yet blunt, evidence-based, contrarian, witty' },
+    { id: 'byron-sharp', name: 'Byron Sharp', style: 'Research-driven, myth-busting, scientific, provocative' },
+    { id: 'al-ries', name: 'Al Ries', style: 'Positioning-obsessed, strategic, bold predictions, contrarian' },
+    { id: 'april-dunford', name: 'April Dunford', style: 'Positioning expert, clear frameworks, practical, direct' },
+    { id: 'bob-hoffman', name: 'Bob Hoffman', style: 'Cynical, industry critic, sharp wit, anti-bullshit' },
+    { id: 'bernadette-jiwa', name: 'Bernadette Jiwa', style: 'Story-focused, human insight, empathy-driven, thoughtful' },
+    { id: 'jonah-berger', name: 'Jonah Berger', style: 'Science-backed, viral mechanics, research-based, accessible' },
+    { id: 'rand-fishkin', name: 'Rand Fishkin', style: 'Transparent, data-informed, community-first, honest' },
+    { id: 'donald-miller', name: 'Donald Miller', style: 'Story framework, clarity-focused, customer-hero mindset' },
+    { id: 'jay-baer', name: 'Jay Baer', style: 'Customer experience, talk triggers, practical, energetic' },
+    { id: 'mari-smith', name: 'Mari Smith', style: 'Relationship marketing, warm, authentic, social-first' },
+    { id: 'grant-cardone', name: 'Grant Cardone', style: '10X everything, aggressive, sales-focused, motivational' },
+    { id: 'ryan-deiss', name: 'Ryan Deiss', style: 'Funnel strategy, customer journey, systematic, growth-focused' },
+    { id: 'ryan-holiday', name: 'Ryan Holiday', style: 'Stoic wisdom, media manipulation, cultural insight, contrarian' },
+    { id: 'david-ogilvy', name: 'David Ogilvy', style: 'Classic principles, research-based, elegant, authoritative' },
+    { id: 'eugene-schwartz', name: 'Eugene Schwartz', style: 'Awareness stages, deep psychology, sophisticated, timeless' }
   ]
 }
 
@@ -118,6 +138,11 @@ export default function AdCreatorPage() {
   const [editingHookId, setEditingHookId] = useState<string | null>(null)
   const [editingHookText, setEditingHookText] = useState('')
 
+  // Agent voice editing
+  const [editingAgentId, setEditingAgentId] = useState<string | null>(null)
+  const [editingAgentPersonality, setEditingAgentPersonality] = useState('')
+  const [customAgentPersonalities, setCustomAgentPersonalities] = useState<Record<string, string>>({})
+
   // Collapsible section states - default to collapsed for compact view
   const [narrativeExpanded, setNarrativeExpanded] = useState(false)
   const [voiceExpanded, setVoiceExpanded] = useState(false)
@@ -127,10 +152,21 @@ export default function AdCreatorPage() {
   const currentNarrative = selectedNarrative !== null ? HOOKS_DATA[selectedNarrative] : null
   const selectedHook = hooks.find(h => h.id === selectedHookId)
 
-  // Get selected voice data
+  // Get selected voice data with custom personality if available
   const getVoiceData = () => {
     if (!selectedVoice) return null
-    return VOICES[voiceType].find(v => v.id === selectedVoice)
+    const voice = VOICES[voiceType].find(v => v.id === selectedVoice)
+    if (!voice) return null
+
+    // If it's an agent and has a custom personality, use that
+    if (voiceType === 'agents' && customAgentPersonalities[selectedVoice]) {
+      return {
+        ...voice,
+        personality: customAgentPersonalities[selectedVoice]
+      }
+    }
+
+    return voice
   }
   const voiceData = getVoiceData()
 
@@ -228,6 +264,27 @@ export default function AdCreatorPage() {
     } catch (error) {
       console.error('Failed to copy:', error)
     }
+  }
+
+  // Agent voice editing functions
+  const startEditingAgent = (agentId: string, currentPersonality: string) => {
+    setEditingAgentId(agentId)
+    setEditingAgentPersonality(customAgentPersonalities[agentId] || currentPersonality)
+  }
+
+  const saveAgentEdit = () => {
+    if (!editingAgentId) return
+    setCustomAgentPersonalities({
+      ...customAgentPersonalities,
+      [editingAgentId]: editingAgentPersonality
+    })
+    setEditingAgentId(null)
+    setEditingAgentPersonality('')
+  }
+
+  const cancelAgentEdit = () => {
+    setEditingAgentId(null)
+    setEditingAgentPersonality('')
   }
 
   // Render template
@@ -380,27 +437,84 @@ export default function AdCreatorPage() {
                   </button>
                 </div>
 
-                {/* Voice options */}
-                <div className="space-y-2">
-                  {VOICES[voiceType].map((voice) => (
-                    <button
-                      key={voice.id}
-                      onClick={() => {
-                        setSelectedVoice(voice.id)
-                        setVoiceExpanded(false)
-                      }}
-                      className={`w-full p-3 rounded-lg text-left transition-all ${
-                        selectedVoice === voice.id
-                          ? 'bg-cyan-600 border border-cyan-400'
-                          : 'bg-white/5 border border-white/10 hover:bg-white/10'
-                      }`}
-                    >
-                      <div className="text-white text-sm font-medium">{voice.name}</div>
-                      <div className="text-white/50 text-xs mt-1">
-                        {voiceType === 'agents' ? (voice as any).role : (voice as any).style}
+                {/* Voice options - scrollable with max height */}
+                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
+                  {VOICES[voiceType].map((voice) => {
+                    const isAgent = voiceType === 'agents'
+                    const isEditing = isAgent && editingAgentId === voice.id
+                    const displayPersonality = isAgent && customAgentPersonalities[voice.id]
+                      ? customAgentPersonalities[voice.id]
+                      : (voice as any).personality || (voice as any).style
+
+                    return (
+                      <div
+                        key={voice.id}
+                        className={`relative rounded-lg transition-all group ${
+                          selectedVoice === voice.id
+                            ? 'bg-cyan-600 border border-cyan-400'
+                            : 'bg-white/5 border border-white/10'
+                        }`}
+                      >
+                        {isEditing ? (
+                          <div className="p-3 space-y-2">
+                            <div className="text-white text-sm font-medium">{voice.name}</div>
+                            <textarea
+                              value={editingAgentPersonality}
+                              onChange={(e) => setEditingAgentPersonality(e.target.value)}
+                              className="w-full bg-black/30 text-white text-xs p-2 rounded border border-white/20 focus:border-cyan-400 outline-none"
+                              rows={2}
+                              placeholder="Describe the agent's voice style..."
+                            />
+                            <div className="flex gap-2">
+                              <button
+                                onClick={saveAgentEdit}
+                                className="flex-1 bg-cyan-500 text-white text-xs px-2 py-1 rounded hover:bg-cyan-600"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={cancelAgentEdit}
+                                className="flex-1 bg-white/10 text-white text-xs px-2 py-1 rounded hover:bg-white/20"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => {
+                                setSelectedVoice(voice.id)
+                                setVoiceExpanded(false)
+                              }}
+                              className="w-full p-3 text-left pr-20"
+                            >
+                              <div className="text-white text-sm font-medium">{voice.name}</div>
+                              <div className="text-white/50 text-xs mt-1">
+                                {isAgent ? (voice as any).role : ''}
+                              </div>
+                              <div className="text-white/40 text-xs mt-1 italic">
+                                {displayPersonality}
+                              </div>
+                            </button>
+
+                            {/* Edit button for agents only */}
+                            {isAgent && (voice as any).editable && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  startEditingAgent(voice.id, (voice as any).personality)
+                                }}
+                                className="absolute top-2 right-2 p-1.5 bg-white/10 rounded hover:bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <Edit2 className="w-3 h-3 text-white/70" />
+                              </button>
+                            )}
+                          </>
+                        )}
                       </div>
-                    </button>
-                  ))}
+                    )
+                  })}
                 </div>
               </motion.div>
             )}
