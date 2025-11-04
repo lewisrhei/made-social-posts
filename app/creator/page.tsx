@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, Download, RefreshCw, Copy, Check, ChevronDown, ChevronUp, Plus, X, Edit2 } from 'lucide-react'
+import { Sparkles, Download, RefreshCw, Copy, Check, ChevronDown, ChevronUp, Plus, X, Edit2, Save, BookmarkPlus } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
 // Dynamically import templates
@@ -142,6 +142,10 @@ export default function AdCreatorPage() {
   const [editingAgentId, setEditingAgentId] = useState<string | null>(null)
   const [editingAgentPersonality, setEditingAgentPersonality] = useState('')
   const [customAgentPersonalities, setCustomAgentPersonalities] = useState<Record<string, string>>({})
+
+  // Save creative state
+  const [isSaving, setIsSaving] = useState(false)
+  const [savedNotification, setSavedNotification] = useState(false)
 
   // Collapsible section states - default to collapsed for compact view
   const [narrativeExpanded, setNarrativeExpanded] = useState(false)
@@ -285,6 +289,46 @@ export default function AdCreatorPage() {
   const cancelAgentEdit = () => {
     setEditingAgentId(null)
     setEditingAgentPersonality('')
+  }
+
+  // Save creative to LocalStorage
+  const saveCreative = () => {
+    if (!selectedHook || !selectedTemplate || !voiceData || !currentNarrative) {
+      return
+    }
+
+    setIsSaving(true)
+
+    const creative = {
+      id: `creative-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      hook: selectedHook.text,
+      template: selectedTemplate,
+      templateName: TEMPLATES.find(t => t.id === selectedTemplate)?.name || '',
+      narrative: currentNarrative.narrative,
+      painPoint: currentNarrative.painPoint,
+      voiceName: voiceData.name,
+      voiceType: voiceType,
+      voicePersonality: voiceType === 'agents' ? (voiceData as any).personality : undefined,
+      voiceStyle: voiceType === 'marketers' ? (voiceData as any).style : undefined,
+    }
+
+    // Get existing creatives from localStorage
+    const existingCreatives = localStorage.getItem('made-creatives')
+    const creatives = existingCreatives ? JSON.parse(existingCreatives) : []
+
+    // Add new creative
+    creatives.unshift(creative) // Add to beginning
+
+    // Save to localStorage
+    localStorage.setItem('made-creatives', JSON.stringify(creatives))
+
+    // Show notification
+    setSavedNotification(true)
+    setTimeout(() => {
+      setSavedNotification(false)
+      setIsSaving(false)
+    }, 2000)
   }
 
   // Render template
@@ -754,6 +798,18 @@ export default function AdCreatorPage() {
               <div className="text-white font-semibold text-sm">Live Preview</div>
               <div className="flex gap-2">
                 <button
+                  onClick={saveCreative}
+                  disabled={!canUpdatePreview || isSaving}
+                  className="p-2 hover:bg-white/10 rounded-lg transition disabled:opacity-50 relative"
+                  title="Save Creative"
+                >
+                  {savedNotification ? (
+                    <Check className="w-4 h-4 text-green-400" />
+                  ) : (
+                    <BookmarkPlus className="w-4 h-4 text-white/60" />
+                  )}
+                </button>
+                <button
                   onClick={() => alert('Export coming soon!')}
                   disabled={!canUpdatePreview}
                   className="p-2 hover:bg-white/10 rounded-lg transition disabled:opacity-50"
@@ -763,6 +819,20 @@ export default function AdCreatorPage() {
                 </button>
               </div>
             </div>
+
+            {/* Save notification */}
+            <AnimatePresence>
+              {savedNotification && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute top-20 right-8 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50"
+                >
+                  ✓ Creative Saved!
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* 9:16 Preview Container */}
             <div className="flex items-center justify-center p-8 bg-gray-950 min-h-[600px]">
