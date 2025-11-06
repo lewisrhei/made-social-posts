@@ -3,7 +3,16 @@ import openrouter from '@/lib/openrouter';
 
 export async function POST(request: Request) {
   try {
-    const { narrative, painPoint, voiceName, voicePersonality, voiceStyle } = await request.json();
+    const {
+      narrative,
+      painPoint,
+      voiceName,
+      voicePersonality,
+      voiceStyle,
+      productFocusType,
+      productFocusName,
+      productFocusDescription
+    } = await request.json();
 
     const voiceDesc = voicePersonality || voiceStyle;
 
@@ -11,6 +20,28 @@ export async function POST(request: Request) {
     console.log('  Narrative:', narrative);
     console.log('  Pain Point:', painPoint);
     console.log('  Voice:', voiceName, '-', voiceDesc);
+    console.log('  Product Focus:', productFocusType, '-', productFocusName);
+
+    // Build product context based on focus
+    let productContext = '';
+    let focusInstruction = '';
+
+    if (productFocusType === 'platform') {
+      productContext = 'Made - AI creative platform that gives creators a full production team for $29.99/mo';
+      focusInstruction = 'Promote Made as a complete platform solution.';
+    } else if (productFocusType === 'agent') {
+      productContext = `${productFocusName} on Made${productFocusDescription ? ` - ${productFocusDescription}` : ''}`;
+      focusInstruction = `Focus specifically on ${productFocusName.split(' (')[0]} as an AI agent that helps creators. Highlight this agent's personality and capabilities.`;
+    } else if (productFocusType === 'skill') {
+      productContext = `${productFocusName}${productFocusDescription ? ` - ${productFocusDescription}` : ''}`;
+      focusInstruction = `Focus SPECIFICALLY on the "${productFocusName}" capability. The hooks should be about this ONE specific feature/skill, not the general platform. Make the hooks very targeted to this capability.`;
+    } else if (productFocusType === 'feature') {
+      productContext = `Made's ${productFocusName} feature${productFocusDescription ? ` - ${productFocusDescription}` : ''}`;
+      focusInstruction = `Promote the ${productFocusName} feature specifically.`;
+    } else if (productFocusType === 'attribute') {
+      productContext = `Made (${productFocusName})${productFocusDescription ? ` - ${productFocusDescription}` : ''}`;
+      focusInstruction = `Emphasize the ${productFocusName} aspect of Made.`;
+    }
 
     const prompt = `You are a marketing expert creating scroll-stopping social media hooks.
 
@@ -18,8 +49,10 @@ Context:
 - Problem: ${painPoint}
 - Narrative: ${narrative}
 - Platform: TikTok/Instagram (9:16 vertical video)
-- Product: Made - AI creative platform that gives creators a full production team for $29.99/mo
+- Product Focus: ${productContext}
 - Voice Style: ${voiceName} - ${voiceDesc}
+
+${focusInstruction}
 
 Create 7 short, punchy hooks (8-12 words each) that:
 1. Stop scrolling immediately
@@ -27,6 +60,7 @@ Create 7 short, punchy hooks (8-12 words each) that:
 3. Address the pain point directly
 4. Feel authentic, not salesy
 5. Work for vertical video format
+6. Are SPECIFICALLY about the product focus above (not generic platform messaging)
 
 Return ONLY a JSON object with a "hooks" array of 7 strings:
 {
@@ -44,7 +78,7 @@ No explanation, no markdown formatting, just the raw JSON object.`;
         },
       ],
       temperature: 0.9,
-      max_tokens: 2000,  // Increased significantly
+      max_tokens: 4000,  // Much higher to account for reasoning tokens
       response_format: { type: 'json_object' }
     });
 

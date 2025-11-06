@@ -20,6 +20,9 @@ const DynamicSplitTemplate = dynamic(() => import('@/components/ad-templates/Dyn
 const MinimalistPosterTemplate = dynamic(() => import('@/components/ad-templates/MinimalistPosterTemplate').then(mod => ({ default: mod.MinimalistPosterTemplate })))
 const GlitchModernTemplate = dynamic(() => import('@/components/ad-templates/GlitchModernTemplate').then(mod => ({ default: mod.GlitchModernTemplate })))
 const SpotlightHeroTemplate = dynamic(() => import('@/components/ad-templates/SpotlightHeroTemplate').then(mod => ({ default: mod.SpotlightHeroTemplate })))
+const ProductShowcaseTemplate = dynamic(() => import('@/components/ad-templates/ProductShowcaseTemplate').then(mod => ({ default: mod.ProductShowcaseTemplate })))
+const FeatureSpotlightTemplate = dynamic(() => import('@/components/ad-templates/FeatureSpotlightTemplate').then(mod => ({ default: mod.FeatureSpotlightTemplate })))
+const SplitScreenProductTemplate = dynamic(() => import('@/components/ad-templates/SplitScreenProductTemplate').then(mod => ({ default: mod.SplitScreenProductTemplate })))
 
 const TEMPLATE_COMPONENTS: Record<string, any> = {
   'aesthetic': AestheticTemplate,
@@ -34,7 +37,10 @@ const TEMPLATE_COMPONENTS: Record<string, any> = {
   'dynamic-split': DynamicSplitTemplate,
   'minimalist-poster': MinimalistPosterTemplate,
   'glitch-modern': GlitchModernTemplate,
-  'spotlight-hero': SpotlightHeroTemplate
+  'spotlight-hero': SpotlightHeroTemplate,
+  'product-showcase': ProductShowcaseTemplate,
+  'feature-spotlight': FeatureSpotlightTemplate,
+  'split-screen-product': SplitScreenProductTemplate
 }
 
 type Creative = {
